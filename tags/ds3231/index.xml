@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>DS3231 on ghubcoder</title>
+    <link>https://ghubcoder.github.io/tags/ds3231/</link>
+    <description>Recent content in DS3231 on ghubcoder</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; ghubcoder</copyright>
+    <lastBuildDate>Mon, 26 Jul 2021 17:45:51 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/tags/ds3231/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Waking the Pico with an external trigger</title>
+      <link>https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/</link>
+      <pubDate>Mon, 26 Jul 2021 17:45:51 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/</guid>
+      <description>Waking the Pico with an external trigger In the last post we discussed how you can put your pico to sleep and wake it using the in built clock, bringing everything back into a usable state after waking.
+As we noted last time, the Pico has two sleep modes, known as dormant and sleep. According to the official datasheet, the sleep mode draws 1.3mA on average at 25c where as dormant mode draws around 0.</description>
+    </item>
+    
+  </channel>
+</rss>

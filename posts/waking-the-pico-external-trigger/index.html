@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Waking the Pico with an external trigger</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        ghubcoder
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../posts/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/ghubcoder/" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-4 ml-sm-5">
+        <h3 id="waking-the-pico-with-an-external-trigger">Waking the Pico with an external trigger</h3>
+<p>In the <a href="http://localhost:1313/posts/awaking-the-pico/">last</a> post we discussed how you can put your pico to sleep and wake it using the in built clock, bringing everything back into a usable state after waking.</p>
+<p>As we noted last time, the Pico has two sleep modes, known as <code>dormant</code> and <code>sleep</code>. According to the official <a href="https://datasheets.raspberrypi.org/pico/pico-datasheet.pdf">datasheet</a>, the <code>sleep</code> mode draws 1.3mA on average at 25c where as <code>dormant</code> mode draws around 0.8mA at the same temperature, a saving of 38%. Therefore, if we are concerned about conserving as much power as possible when sleeping, for example if we are running of battery power, <code>dormant</code> mode provides a much better option.</p>
+<p>The main difference with the dormant mode is that it requires an external GPIO event to bring it back to life, this can be configured to look for a high/low level on a pin, on a rising/falling edge. You can also use the internal RTC interrupt but to do this you must run the RTC from an external clock source. In this post we&rsquo;ll concentrate on the GPIO event as a trigger.</p>
+<p>We&rsquo;re going to be using much of the code we used before as we still need to save the state of the system clocks and restore them once we awaken from the dormant state, however as we can&rsquo;t now rely on the internal clock, we need to use an external one. For this we will use the <code>DS3231</code>.</p>
+<p> 
+ </p>
+<h3 id="the-ds3231">The DS3231</h3>
+<p>The <code>DS3231</code> is a low cost accurate I2C realtime clock which looks as follows:</p>
+<p><img src="../../ds3231.png" alt="DS3231"></p>
+<p>On the other side is a holder for a CR2032 battery which can be used to power the module, retaining the time, when no external power is supplied. That&rsquo;s not required however for the device to work.</p>
+<p><a href="https://en.wikipedia.org/wiki/I%C2%B2C">I2C</a> is a very commonly used serial communication bus, in the image above there is a <code>SCL</code> and <code>SDA</code> pin, these are used control the Clock and Data lines respectively. We&rsquo;re going to be hooking these up to the Pico to allow us to send and receive data to the module.</p>
+<p>The <code>SQW</code> pin can be configured to either output a square-wave, perhaps for driving the clock of another device, or as an interrupt pin triggered by an internal alarm. This is what we are able to use to bring out Pico out of deep sleep. The <code>SQW</code> pin is <code>Active-Low</code>, and therefore when the alarm triggers, the Pico will see a low level on this pin (i.e. the pin is grounded when the DS3231 alarm is triggered), bringing it out of <code>dormant</code> mode. We&rsquo;ll need to tell the Pico later to look for this low signal when telling it to sleep.</p>
+<p>First of all then we need to configure our I2C pins:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    i2c_inst_t <span style="color:#f92672">*</span>i2c   <span style="color:#f92672">=</span> i2c0;
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">uint8_t</span> DEFAULT_SDA_PIN        <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">uint8_t</span> DEFAULT_SCL_PIN        <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>;
+    <span style="color:#66d9ef">int8_t</span> sda        <span style="color:#f92672">=</span> DEFAULT_SDA_PIN;
+    <span style="color:#66d9ef">int8_t</span> scl        <span style="color:#f92672">=</span> DEFAULT_SCL_PIN;
+    i2c_init(i2c, <span style="color:#ae81ff">400000</span>);
+    gpio_set_function(sda, GPIO_FUNC_I2C);
+    gpio_set_function(scl, GPIO_FUNC_I2C);
+</code></pre></div><p>We&rsquo;re going to use GP pins 4 and 5, mapping to i2c0, which is one of two I2C peripherals available to us on the Pico.</p>
+<p>The actual physical pins these map to on the Pico though can be seen below:</p>
+<p><img src="../../picoPinOut.png" alt="Pico Pin Out"></p>
+<p>Pins 6 and 7.</p>
+<p>At the time of writing the code, there were no libraries available for the Pico to interface with the <code>DS3231</code>, however there were a number available for the Arduino. One example was <a href="https://github.com/rodan/ds3231">this</a>, written by Petre Rodan. This was forked and modified to allow it to be used by the Pico.</p>
+<p>With this, we can then configure the <code>DS3231</code> to trigger an alarm on the <code>SQW</code> after a certain time period has passed. We&rsquo;re not concerned about setting the time so that it is accurate, only that after a period of time a low signal is triggered on the <code>SQW</code> pin bringing the Pico back to life.</p>
+<p> 
+ </p>
+<h3 id="setting-the-alarm">Setting the alarm</h3>
+<p>The alarm can be set as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setAlarm</span>(<span style="color:#66d9ef">int</span> sleep_mins){
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> wakeup_min;
+
+    <span style="color:#66d9ef">struct</span> ts t;
+    DS3231_init(DS3231_CONTROL_INTCN);
+
+    <span style="color:#75715e">//ds3231_readtime();
+</span><span style="color:#75715e"></span>    DS3231_get(<span style="color:#f92672">&amp;</span>t);
+
+    <span style="color:#75715e">// calculate the minute when the next alarm will be triggered
+</span><span style="color:#75715e"></span>    wakeup_min <span style="color:#f92672">=</span> (t.min <span style="color:#f92672">/</span> sleep_mins <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> sleep_mins;
+    <span style="color:#66d9ef">if</span> (wakeup_min <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">59</span>) {
+        wakeup_min <span style="color:#f92672">-=</span> <span style="color:#ae81ff">60</span>;
+    }
+
+    <span style="color:#66d9ef">uint8_t</span> flags[<span style="color:#ae81ff">4</span>] <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span> };
+
+    <span style="color:#75715e">// set Alarm2. only the minute is set since we ignore the hour and day component
+</span><span style="color:#75715e"></span>    DS3231_set_a2(wakeup_min, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, flags);
+
+    <span style="color:#75715e">// activate Alarm2
+</span><span style="color:#75715e"></span>    DS3231_set_creg(DS3231_CONTROL_INTCN <span style="color:#f92672">|</span> DS3231_CONTROL_A2IE);
+}
+</code></pre></div><p>In the example above, the function can be passed in the number of minutes to sleep. This could easily be modified to sleep for a number of seconds if required. Assuming though you&rsquo;re concerned about power consumption using this method, it&rsquo;s likely you&rsquo;ll be wanting your Pico to sleep for many minutes at a time in order to conserve the maximum out of precious batter life. It simply gets the current time from the clock and calculates the time that it will be when we want to wake up.</p>
+<p>When we want to sleep, the code looks as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">        printf(<span style="color:#e6db74">&#34;Setting alarm</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        <span style="color:#75715e">//sleep for 1 mins
+</span><span style="color:#75715e"></span>        setAlarm(<span style="color:#ae81ff">1</span>);
+
+        printf(<span style="color:#e6db74">&#34;Alarm set</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        <span style="color:#75715e">//Block until print message is sent
+</span><span style="color:#75715e"></span>        uart_default_tx_wait_blocking();
+
+        <span style="color:#75715e">// Ensure SQW pin is held high until alarm/interrupt
+</span><span style="color:#75715e"></span>        gpio_pull_up(<span style="color:#ae81ff">10</span>);
+
+        <span style="color:#75715e">//Sleep
+</span><span style="color:#75715e"></span>        sleep_goto_dormant_until_pin(<span style="color:#ae81ff">10</span>, true, false);
+
+        <span style="color:#75715e">//We&#39;re wake, cleanup
+</span><span style="color:#75715e"></span>        DS3231_clear_a2f();
+        recover_from_sleep(scb_orig, clock0_orig, clock1_orig);
+
+        printf(<span style="color:#e6db74">&#34;Recovered</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+        uart_default_tx_wait_blocking();
+</code></pre></div><p> 
+ </p>
+<h3 id="wiring">Wiring everything up</h3>
+<p>The board layout looks as follows, as you can see from the code above, the Pico has been configured to wake from the GP10 pin, which physically maps to pin 14.</p>
+<p><img src="../../picoSleepRTCLayout.png" alt="Pico RTC Sleep board layout"></p>
+<p>When the alarm is triggered, pin 14 is grounded and the Pico wakes and continues to execute the program.</p>
+<p> 
+ </p>
+<h3 id="but-were-powering-the-ds3231-when-sleeping">But, we&rsquo;re powering the DS3231 when sleeping&hellip;.</h3>
+<p>Yes&hellip; checking <a href="https://wolles-elektronikkiste.de/en/ds3231-real-time-clock">around</a> it seems with the LED of the DS3231 connected, the DS3231 will draw 1.8mA when in VCC operation (powered by the VCC pin). That&rsquo;s not great, we&rsquo;re now in a worse position than we were when using the internal RTC of the Pico to wake itself, which was drawing 1.3mA. We could desolder the LED, bringing the consumption down to 0.36 mA however. That still means draining the same battery which we are using to power the Pico.</p>
+<p>The DS3231 has a CR2032 battery holder, can we use that to power the module when the Pico is dormant? We can&hellip; but we&rsquo;re going to have to make a few changes.</p>
+<p>When you try this, by disconnecting the <code>VCC</code> pin and inserting a battery, the Pico will hang when trying to communicate with the DS3231.</p>
+<p>Luckily, there are a few others out there who have also tried this who have helpfully left details about how the issues can be resolved on various threads on the Arduino forums.</p>
+<p><a href="https://forum.arduino.cc/t/ds3231-rtc-no-interrupts-on-battery-zs-042-module/527951/2">This</a> thread and the linked post in particular mentions this <a href="https://thecavepearlproject.org/2014/05/21/using-a-cheap-3-ds3231-rtc-at24c32-eeprom-from-ebay/">blog</a> post. In another Arduino forum <a href="https://forum.arduino.cc/t/using-a-ds3231-real-time-clock-rtc-at-lowest-power-mode-with-atmega328p/603038/6">post</a>, <code>jremington</code> again helpfully describes what you need to modify on the DS3231 to allow it to operate in low power mode (via the CR2032 battery) and still be able to generate interrupts via the internal alarm.</p>
+<p> 
+ </p>
+<h3 id="the-problem">The problem</h3>
+<p>As you can see from the following schematic helpfully provided by <code>ShermanP</code> in <a href="https://forum.arduino.cc/t/ds3231-rtc-module-sqw-pin-high-low-for-extended-time/683859/14?u=ardwrt">this</a> post, the VCC line with a resistor pack is used to hold up the SQW, SCL and SDA pins. Without VCC being powered, this resistor pack becomes a pull down resistor, preventing I2C from working (as well as the SQW interrupt if we could communicate at all with the module to set it).</p>
+<p><img src="../../ds3231Schematic.png" alt="DS3231"></p>
+<p> 
+ </p>
+<h3 id="the-solution">The solution</h3>
+<p>Firstly, you need to break out the soldering iron and desolder the part marked <code>1</code> as below:
+(if you don&rsquo;t have a soldering iron I&rsquo;ve seen people mention that you can break it off using a pencil)</p>
+<p><img src="../../ds3231Modified.png" alt="DS3231"></p>
+<p><code>1</code> must be removed so that the SQW continues to operate when the chip is battery powered (as well as allowing I2C comms to still work). Without removing this the SQW line will remain in a <code>LOW</code> state. See <a href="https://forum.arduino.cc/t/rtc-ds3231s-sqw-pin-goes-low-when-on-vbat-and-triggers-an-unsolicited-interrupt/498207">here</a> for example of someone who had this issue and fixed it by removing this resister block.</p>
+<p><code>2</code> is removed in the <a href="https://thecavepearlproject.org/2014/05/21/using-a-cheap-3-ds3231-rtc-at24c32-eeprom-from-ebay/">blog</a> post as above due to it supplying a trickle charge to the battery when the module is powered by the <code>VCC</code> pin (which is not safe when using a non-rechargable battery). However there are two sections in the blog which have been updated by the author over the course of time since the original blog was posted. These two sections are interesting:</p>
+<p>2018:</p>
+<blockquote>
+<p>I made an error during some recent run tests, where I forgot to connect the RTC’s Vcc line jumper to the digital pin for power (see addendum: 2017-04-15) . The test ran without a hitch for several days (&gt;6000 RTC temp readings &amp; alarms) with the Vcc pin left floating, and power  provided only through the Vbat line.  I had assumed that high-speed I2C communications would fail in this situation, but after digging through the data sheet – it turns out that the DS3231 is fully functional on Vbat.</p>
+</blockquote>
+<p>2019:</p>
+<blockquote>
+<p>So if you are OK with simply running down the CR2032 battery (which should run for months with an infrequently pulsed 80uA load during the I2C comms…) –  then you don’t need to go through the extra circuitry I described above: you can simply kick off the smd resistors, cut the Vcc leg – and you have an RTC module that is pulling no power at all from the main power supply!</p>
+</blockquote>
+<p>With my own testing for this writeup, I removed <code>1</code> and <code>2</code> and did not cut the line to VCC, everything appeared to work fine with this. You might like to try not removing <code>2</code> as we are not longer supplying power via VCC then we shouldn&rsquo;t need to worry about trickle charging the battery. <code>1</code> is certainly required so that the <code>SQW</code> pin will stay high unless the interrupt is triggered by the alarm and so I2C comms work.</p>
+<p>As we&rsquo;ve now removed the onboard pull-up resisters on the DS3231 as part of <code>1</code>, we need to ensure the pins I2C on the Pico are pulled up so that I2C comms can still work. This is accomplished with:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    gpio_pull_up(sda);
+    gpio_pull_up(scl);
+</code></pre></div><p>We also need to do the same for the SQW pin, in this case GPIO pin 10</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    gpio_pull_up(<span style="color:#ae81ff">10</span>);
+</code></pre></div><p>With this in place and the modification made to the DS3231, we can now insert a CR2032 battery into the module <strong>and disconnect the VCC pin</strong> (red wire in the above <a href="https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/#wiring">diagram</a>). Rather than removing the wire entirely, you may want to ground it (connect it to the same row as the black wire, the negative strip).</p>
+<p> 
+ </p>
+<h3 id="finally">Finally</h3>
+<p>This demo has shown how it&rsquo;s possible to awaken the Raspberry Pico using an external trigger, in this case a DS3231. Using a single AA battery would allow the Pico to sleep for approximately 104 days (0.8mA consumption in dormant mode, 2000mAh battery capacity in ideal conditions).</p>
+<p>The full code for this demo can be found <a href="https://github.com/ghubcoder/PicoSleepRtc">here</a>. Please leave an issue on the repository if you have any comments or suggestions.</p>
+
+    </div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; ghubcoder
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

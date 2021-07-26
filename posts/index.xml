@@ -1,3 +1,33 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on ghubcoder</title><link>https://ghubcoder.github.io/posts/</link><description>Recent content in Posts on ghubcoder</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>&amp;copy; ghubcoder</copyright><lastBuildDate>Fri, 19 Feb 2021 09:52:51 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Awaking the Raspberry Pico from deep sleep</title><link>https://ghubcoder.github.io/posts/awaking-the-pico/</link><pubDate>Fri, 19 Feb 2021 09:52:51 +0000</pubDate><guid>https://ghubcoder.github.io/posts/awaking-the-pico/</guid><description>Awaking the Raspberry Pico from deep sleep The Raspberry Pico was released in Jan 2021, and retails for around $4. It has a Dual-core Arm Cortex-M0+ processor (RP2040), flexible clock running up to 133 MHz and 264KB internal RAM.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on ghubcoder</title>
+    <link>https://ghubcoder.github.io/posts/</link>
+    <description>Recent content in Posts on ghubcoder</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; ghubcoder</copyright>
+    <lastBuildDate>Mon, 26 Jul 2021 17:45:51 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Waking the Pico with an external trigger</title>
+      <link>https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/</link>
+      <pubDate>Mon, 26 Jul 2021 17:45:51 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/</guid>
+      <description>Waking the Pico with an external trigger In the last post we discussed how you can put your pico to sleep and wake it using the in built clock, bringing everything back into a usable state after waking.
+As we noted last time, the Pico has two sleep modes, known as dormant and sleep. According to the official datasheet, the sleep mode draws 1.3mA on average at 25c where as dormant mode draws around 0.</description>
+    </item>
+    
+    <item>
+      <title>Awaking the Raspberry Pico from deep sleep</title>
+      <link>https://ghubcoder.github.io/posts/awaking-the-pico/</link>
+      <pubDate>Fri, 19 Feb 2021 09:52:51 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/awaking-the-pico/</guid>
+      <description>Awaking the Raspberry Pico from deep sleep The Raspberry Pico was released in Jan 2021, and retails for around $4. It has a Dual-core Arm Cortex-M0+ processor (RP2040), flexible clock running up to 133 MHz and 264KB internal RAM.
 This is a short overview of how you might reduce the power consumption of your Pico to a very low level, around 1.3mA at 25c according to the official datasheet.
-This is useful for periodically performing some work, consuming minimal power whilst we are sleeping.</description></item></channel></rss>
+This is useful for periodically performing some work, consuming minimal power whilst we are sleeping.</description>
+    </item>
+    
+  </channel>
+</rss>

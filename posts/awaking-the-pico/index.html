@@ -1,108 +1,208 @@
-<!doctype html><html lang=en><head><title>Awaking the Raspberry Pico from deep sleep</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=description content><link rel=stylesheet href=../../css/theme.min.css></head><body><div id=content class=mx-auto><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1"><div class=row><div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4"><a href=../../ class=text-decoration-none><img id=home-image class=rounded-circle src=../../images/avatar.png></a></div><div class="col-sm-8 col-12 text-sm-left text-center"><h2 class="m-0 mb-2 mt-4"><a href=../../ class=text-decoration-none>ghubcoder</a></h2><p class="text-muted mb-1"></p><ul id=nav-links class="list-inline mb-2"><li class=list-inline-item><a class="badge badge-white" href=../../about/ title=About>About</a></li><li class=list-inline-item><a class="badge badge-white" href=../../posts/ title=Posts>Posts</a></li><li class=list-inline-item><a class="badge badge-white" href=../../categories/ title=Categories>Categories</a></li></ul><ul id=nav-social class=list-inline><li class="list-inline-item mr-3"><a href=https://github.com/ghubcoder/ target=_blank><i class="fab fa-github fa-1x text-muted"></i></a></li></ul></div></div><hr></header><div class=container><div class="pl-sm-4 ml-sm-5"><h3 id=awaking-the-raspberry-pico-from-deep-sleep>Awaking the Raspberry Pico from deep sleep</h3><p>The Raspberry Pico was released in Jan 2021, and retails for around $4. It has a Dual-core Arm Cortex-M0+ processor (RP2040), flexible clock running up to 133 MHz and 264KB internal RAM.</p><p>This is a short overview of how you might reduce the power consumption of your Pico to a very low level, around 1.3mA at 25c according to the official <a href=https://datasheets.raspberrypi.org/pico/pico-datasheet.pdf>datasheet</a>.</p><p>This is useful for periodically performing some work, consuming minimal power whilst we are sleeping.</p><p>Sleeping is fairly simple, but there were a few extra steps required to bring the Pico back to full functionality once it&rsquo;s awake.</p><h3 id=choosing-a-sleep-mode>Choosing a sleep mode</h3><p>There appear to be two different sleep modes, a <code>dormant</code> mode and a <code>sleep</code> mode. Read more about them from a programming perspective <a href=https://datasheets.raspberrypi.org/rp2040/rp2040-datasheet.pdf>here</a> in the <code>2.11.5. Programmer’s Model</code> section.</p><p>The dormant mode uses even less power 0.8mA at 25c, however it appears to require the use of an external trigger to bring the Pico back out of sleep.</p><p>To use dormant mode, they use the following function in <a href=https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_dormant/hello_dormant.c#L28>their</a> example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#75715e>// Go to sleep until we see a high edge on GPIO 10
-</span><span style=color:#75715e></span>sleep_goto_dormant_until_edge_high(<span style=color:#ae81ff>10</span>);
-</code></pre></div><p>If you want to purely rely on the internal clock of the Pico to trigger it to awaken, we&rsquo;re going to have to use the <code>sleep</code> mode, using slightly more power.</p><h3 id=example-sleep-code>Example sleep code</h3><p>Lets take a look then at the sleep <a href=https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_sleep/hello_sleep.c>example</a> from the pico-playground:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() {
+<!doctype html>
+<html lang="en"><head>
+    <title>Awaking the Raspberry Pico from deep sleep</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        ghubcoder
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../posts/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/ghubcoder/" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-4 ml-sm-5">
+        <h3 id="awaking-the-raspberry-pico-from-deep-sleep">Awaking the Raspberry Pico from deep sleep</h3>
+<p>The Raspberry Pico was released in Jan 2021, and retails for around $4. It has a Dual-core Arm Cortex-M0+ processor (RP2040), flexible clock running up to 133 MHz and 264KB internal RAM.</p>
+<p>This is a short overview of how you might reduce the power consumption of your Pico to a very low level, around 1.3mA at 25c according to the official <a href="https://datasheets.raspberrypi.org/pico/pico-datasheet.pdf">datasheet</a>.</p>
+<p>This is useful for periodically performing some work, consuming minimal power whilst we are sleeping.</p>
+<p>Sleeping is fairly simple, but there were a few extra steps required to bring the Pico back to full functionality once it&rsquo;s awake.</p>
+<h3 id="choosing-a-sleep-mode">Choosing a sleep mode</h3>
+<p>There appear to be two different sleep modes, a <code>dormant</code> mode and a <code>sleep</code> mode. Read more about them from a programming perspective <a href="https://datasheets.raspberrypi.org/rp2040/rp2040-datasheet.pdf">here</a> in the <code>2.11.5. Programmer’s Model</code> section.</p>
+<p>The dormant mode uses even less power 0.8mA at 25c, however it appears to require the use of an external trigger to bring the Pico back out of sleep.</p>
+<p>To use dormant mode, they use the following function in <a href="https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_dormant/hello_dormant.c#L28">their</a> example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// Go to sleep until we see a high edge on GPIO 10
+</span><span style="color:#75715e"></span>sleep_goto_dormant_until_edge_high(<span style="color:#ae81ff">10</span>);
+</code></pre></div><p>If you want to purely rely on the internal clock of the Pico to trigger it to awaken, we&rsquo;re going to have to use the <code>sleep</code> mode, using slightly more power.</p>
+<h3 id="example-sleep-code">Example sleep code</h3>
+<p>Lets take a look then at the sleep <a href="https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_sleep/hello_sleep.c">example</a> from the pico-playground:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
     stdio_init_all();
-    printf(<span style=color:#e6db74>&#34;Hello Sleep!</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Hello Sleep!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    printf(<span style=color:#e6db74>&#34;Switching to XOSC</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switching to XOSC</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    <span style=color:#75715e>// Wait for the fifo to be drained so we get reliable output
-</span><span style=color:#75715e></span>    uart_default_tx_wait_blocking();
+    <span style="color:#75715e">// Wait for the fifo to be drained so we get reliable output
+</span><span style="color:#75715e"></span>    uart_default_tx_wait_blocking();
 
-    <span style=color:#75715e>// UART will be reconfigured by sleep_run_from_xosc
-</span><span style=color:#75715e></span>    sleep_run_from_xosc();
+    <span style="color:#75715e">// UART will be reconfigured by sleep_run_from_xosc
+</span><span style="color:#75715e"></span>    sleep_run_from_xosc();
 
-    printf(<span style=color:#e6db74>&#34;Switched to XOSC</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switched to XOSC</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    awake <span style=color:#f92672>=</span> false;
+    awake <span style="color:#f92672">=</span> false;
 
-    <span style=color:#75715e>//At this point the pico will sleep
-</span><span style=color:#75715e></span>    rtc_sleep();
+    <span style="color:#75715e">//At this point the pico will sleep
+</span><span style="color:#75715e"></span>    rtc_sleep();
 
-    <span style=color:#75715e>//We won&#39;t hit this part of the code until the 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>//time set in rtc_sleep() is reached. 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>// Make sure we don&#39;t wake
-</span><span style=color:#75715e></span>    <span style=color:#66d9ef>while</span> (<span style=color:#f92672>!</span>awake) {
-        printf(<span style=color:#e6db74>&#34;Should be sleeping</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    <span style="color:#75715e">//We won&#39;t hit this part of the code until the 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//time set in rtc_sleep() is reached. 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Make sure we don&#39;t wake
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>awake) {
+        printf(<span style="color:#e6db74">&#34;Should be sleeping</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     }
 
-    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-</code></pre></div><p>The above makes a call to <code>rtc_sleep()</code> which sets everything up and then sleeps for 10 seconds:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>rtc_sleep</span>(<span style=color:#66d9ef>void</span>) {
-    <span style=color:#75715e>// Start on Friday 5th of June 2020 15:45:00
-</span><span style=color:#75715e></span>    datetime_t t <span style=color:#f92672>=</span> {
-            .year  <span style=color:#f92672>=</span> <span style=color:#ae81ff>2020</span>,
-            .month <span style=color:#f92672>=</span> <span style=color:#ae81ff>06</span>,
-            .day   <span style=color:#f92672>=</span> <span style=color:#ae81ff>05</span>,
-            .dotw  <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>, <span style=color:#75715e>// 0 is Sunday, so 5 is Friday
-</span><span style=color:#75715e></span>            .hour  <span style=color:#f92672>=</span> <span style=color:#ae81ff>15</span>,
-            .min   <span style=color:#f92672>=</span> <span style=color:#ae81ff>45</span>,
-            .sec   <span style=color:#f92672>=</span> <span style=color:#ae81ff>00</span>
+</code></pre></div><p>The above makes a call to <code>rtc_sleep()</code> which sets everything up and then sleeps for 10 seconds:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rtc_sleep</span>(<span style="color:#66d9ef">void</span>) {
+    <span style="color:#75715e">// Start on Friday 5th of June 2020 15:45:00
+</span><span style="color:#75715e"></span>    datetime_t t <span style="color:#f92672">=</span> {
+            .year  <span style="color:#f92672">=</span> <span style="color:#ae81ff">2020</span>,
+            .month <span style="color:#f92672">=</span> <span style="color:#ae81ff">06</span>,
+            .day   <span style="color:#f92672">=</span> <span style="color:#ae81ff">05</span>,
+            .dotw  <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, <span style="color:#75715e">// 0 is Sunday, so 5 is Friday
+</span><span style="color:#75715e"></span>            .hour  <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span>,
+            .min   <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>,
+            .sec   <span style="color:#f92672">=</span> <span style="color:#ae81ff">00</span>
     };
 
-    <span style=color:#75715e>// Alarm 10 seconds later
-</span><span style=color:#75715e></span>    datetime_t t_alarm <span style=color:#f92672>=</span> {
-            .year  <span style=color:#f92672>=</span> <span style=color:#ae81ff>2020</span>,
-            .month <span style=color:#f92672>=</span> <span style=color:#ae81ff>06</span>,
-            .day   <span style=color:#f92672>=</span> <span style=color:#ae81ff>05</span>,
-            .dotw  <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>, <span style=color:#75715e>// 0 is Sunday, so 5 is Friday
-</span><span style=color:#75715e></span>            .hour  <span style=color:#f92672>=</span> <span style=color:#ae81ff>15</span>,
-            .min   <span style=color:#f92672>=</span> <span style=color:#ae81ff>45</span>,
-            .sec   <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>
+    <span style="color:#75715e">// Alarm 10 seconds later
+</span><span style="color:#75715e"></span>    datetime_t t_alarm <span style="color:#f92672">=</span> {
+            .year  <span style="color:#f92672">=</span> <span style="color:#ae81ff">2020</span>,
+            .month <span style="color:#f92672">=</span> <span style="color:#ae81ff">06</span>,
+            .day   <span style="color:#f92672">=</span> <span style="color:#ae81ff">05</span>,
+            .dotw  <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, <span style="color:#75715e">// 0 is Sunday, so 5 is Friday
+</span><span style="color:#75715e"></span>            .hour  <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span>,
+            .min   <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>,
+            .sec   <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
     };
 
-    <span style=color:#75715e>// Start the RTC
-</span><span style=color:#75715e></span>    rtc_init();
-    rtc_set_datetime(<span style=color:#f92672>&amp;</span>t);
+    <span style="color:#75715e">// Start the RTC
+</span><span style="color:#75715e"></span>    rtc_init();
+    rtc_set_datetime(<span style="color:#f92672">&amp;</span>t);
 
-    printf(<span style=color:#e6db74>&#34;Sleeping for 10 seconds</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Sleeping for 10 seconds</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
 
-    sleep_goto_sleep_until(<span style=color:#f92672>&amp;</span>t_alarm, <span style=color:#f92672>&amp;</span>sleep_callback);
+    sleep_goto_sleep_until(<span style="color:#f92672">&amp;</span>t_alarm, <span style="color:#f92672">&amp;</span>sleep_callback);
 }
 
-</code></pre></div><p>All fairly straight forward, and if you run this it works as expected. This line:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>printf(<span style=color:#e6db74>&#34;Should be sleeping</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
-</code></pre></div><p>Is never printed as by the time we reach this point in the code, the sleep callback is triggered on awaking, setting <code>awake</code> to true:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>sleep_callback</span>(<span style=color:#66d9ef>void</span>) {
-    printf(<span style=color:#e6db74>&#34;RTC woke us up</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
-    awake <span style=color:#f92672>=</span> true;
+</code></pre></div><p>All fairly straight forward, and if you run this it works as expected. This line:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">printf(<span style="color:#e6db74">&#34;Should be sleeping</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</code></pre></div><p>Is never printed as by the time we reach this point in the code, the sleep callback is triggered on awaking, setting <code>awake</code> to true:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">sleep_callback</span>(<span style="color:#66d9ef">void</span>) {
+    printf(<span style="color:#e6db74">&#34;RTC woke us up</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+    awake <span style="color:#f92672">=</span> true;
 }
-</code></pre></div><h3 id=fantastic-all-sorted>Fantastic! All sorted?</h3><p>Unfortunately this is not the whole story, we don&rsquo;t wake up in a great state. Though at first everything seems fine.</p><p>Lets say we expand on the code in the example above, and we try to sleep again using the regular <code>sleep_ms</code> method the Pico SDK provides:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>    <span style=color:#75715e>//We won&#39;t hit this part of the code until the 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>//time set in rtc_sleep() is reached. 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>// Make sure we don&#39;t wake
-</span><span style=color:#75715e></span>    <span style=color:#66d9ef>while</span> (<span style=color:#f92672>!</span>awake) {
-        printf(<span style=color:#e6db74>&#34;Should be sleeping</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+</code></pre></div><h3 id="fantastic-all-sorted">Fantastic! All sorted?</h3>
+<p>Unfortunately this is not the whole story, we don&rsquo;t wake up in a great state. Though at first everything seems fine.</p>
+<p>Lets say we expand on the code in the example above, and we try to sleep again using the regular <code>sleep_ms</code> method the Pico SDK provides:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    <span style="color:#75715e">//We won&#39;t hit this part of the code until the 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//time set in rtc_sleep() is reached. 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Make sure we don&#39;t wake
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>awake) {
+        printf(<span style="color:#e6db74">&#34;Should be sleeping</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     }
 
-    printf(<span style=color:#e6db74>&#34;switch on the onboard LED</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;switch on the onboard LED</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
-    gpio_put(LED_PIN, <span style=color:#ae81ff>1</span>);
+    gpio_put(LED_PIN, <span style="color:#ae81ff">1</span>);
 
-    printf(<span style=color:#e6db74>&#34;Sleep from sleep_ms</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Sleep from sleep_ms</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
 
-    <span style=color:#75715e>//We hang at this point forever
-</span><span style=color:#75715e></span>    sleep_ms(<span style=color:#ae81ff>2000</span>);
+    <span style="color:#75715e">//We hang at this point forever
+</span><span style="color:#75715e"></span>    sleep_ms(<span style="color:#ae81ff">2000</span>);
 
-    printf(<span style=color:#e6db74>&#34;Switch off LED</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switch off LED</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
-    gpio_put(LED_PIN, <span style=color:#ae81ff>0</span>);
+    gpio_put(LED_PIN, <span style="color:#ae81ff">0</span>);
 
-    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
-</code></pre></div><p>What happens is we hang at the <code>sleep_ms</code> command.</p><h3 id=whats-going-on-here>What&rsquo;s going on here?</h3><p>Lets follow through the function calls <code>rtc_sleep</code> is making and see what&rsquo;s being changed to allow us to enter this deep sleep state.
-One of the functions we call is <code>sleep_run_from_xosc()</code>, this sets up the Pico to run from the internal Crystal Oscillator.</p><p>Following that through we end up in <a href=https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L65>this</a> area of the code:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>    <span style=color:#75715e>// CLK SYS = CLK_REF
-</span><span style=color:#75715e></span>    clock_configure(clk_sys,
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</code></pre></div><p>What happens is we hang at the <code>sleep_ms</code> command.</p>
+<h3 id="whats-going-on-here">What&rsquo;s going on here?</h3>
+<p>Lets follow through the function calls <code>rtc_sleep</code> is making and see what&rsquo;s being changed to allow us to enter this deep sleep state.
+One of the functions we call is <code>sleep_run_from_xosc()</code>, this sets up the Pico to run from the internal Crystal Oscillator.</p>
+<p>Following that through we end up in <a href="https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L65">this</a> area of the code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    <span style="color:#75715e">// CLK SYS = CLK_REF
+</span><span style="color:#75715e"></span>    clock_configure(clk_sys,
                     CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLK_REF,
-                    <span style=color:#ae81ff>0</span>, <span style=color:#75715e>// Using glitchless mux
-</span><span style=color:#75715e></span>                    src_hz,
+                    <span style="color:#ae81ff">0</span>, <span style="color:#75715e">// Using glitchless mux
+</span><span style="color:#75715e"></span>                    src_hz,
                     src_hz);
 
-    <span style=color:#75715e>// CLK USB = 0MHz
-</span><span style=color:#75715e></span>    clock_stop(clk_usb);
+    <span style="color:#75715e">// CLK USB = 0MHz
+</span><span style="color:#75715e"></span>    clock_stop(clk_usb);
 
-    <span style=color:#75715e>// CLK ADC = 0MHz
-</span><span style=color:#75715e></span>    clock_stop(clk_adc);
+    <span style="color:#75715e">// CLK ADC = 0MHz
+</span><span style="color:#75715e"></span>    clock_stop(clk_adc);
 </code></pre></div><p>So it seems we&rsquo;re reconfiguring the system clock, and stopping a few of the other clocks. Could that be why we&rsquo;re not able to sleep correctly later?
-Thankfully an <a href=https://raspberrypi.github.io/pico-sdk-doxygen/group__hardware__clocks.html>example</a> in the SDK docs gives us a away to check what the internal clocks are set to.</p><p>We can print these values out before and after sleeping, and see how it looks.</p><h3 id=disabled-clocks>Disabled clocks</h3><p>Before sleeping:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>pll_sys  = 125001kHz
+Thankfully an <a href="https://raspberrypi.github.io/pico-sdk-doxygen/group__hardware__clocks.html">example</a> in the SDK docs gives us a away to check what the internal clocks are set to.</p>
+<p>We can print these values out before and after sleeping, and see how it looks.</p>
+<h3 id="disabled-clocks">Disabled clocks</h3>
+<p>Before sleeping:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">pll_sys  = 125001kHz
 pll_usb  = 48000kHz
 rosc     = 4689kHz
 clk_sys  = 125000kHz
@@ -110,7 +210,8 @@ clk_peri = 125000kHz
 clk_usb  = 48000kHz
 clk_adc  = 48000kHz
 clk_rtc  = 47kHz
-</code></pre></div><p>After sleeping:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>pll_sys  = 0kHz
+</code></pre></div><p>After sleeping:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">pll_sys  = 0kHz
 pll_usb  = 0kHz
 rosc     = 0kHz
 clk_sys  = 12000kHz
@@ -118,7 +219,9 @@ clk_peri = 12000kHz
 clk_usb  = 0kHz
 clk_adc  = 0kHz
 clk_rtc  = 47kHz
-</code></pre></div><p>That&rsquo;s probably not helping. There is actually a <code>clocks_init</code> <a href=https://github.com/raspberrypi/pico-sdk/blob/26653ea81e340cacee55025d110c3e014a252a87/src/rp2_common/hardware_clocks/clocks.c#L117>function</a> provided by the SDK, however when trying to call that after sleeping, it will just hang.</p><p>By creating a new function, and picking out some of the commands from <code>clocks_init</code>, some of the clocks could be reset.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>pll_sys  = 125000kHz
+</code></pre></div><p>That&rsquo;s probably not helping. There is actually a <code>clocks_init</code> <a href="https://github.com/raspberrypi/pico-sdk/blob/26653ea81e340cacee55025d110c3e014a252a87/src/rp2_common/hardware_clocks/clocks.c#L117">function</a> provided by the SDK, however when trying to call that after sleeping, it will just hang.</p>
+<p>By creating a new function, and picking out some of the commands from <code>clocks_init</code>, some of the clocks could be reset.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">pll_sys  = 125000kHz
 pll_usb  = 48000kHz
 rosc     = 0kHz
 clk_sys  = 12000kHz
@@ -126,23 +229,28 @@ clk_peri = 12000kHz
 clk_usb  = 48000kHz
 clk_adc  = 48000kHz
 clk_rtc  = 47kHz
-</code></pre></div><p>However, trying to reset the system clock would seem to hang:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>clock_configure(clk_sys,
+</code></pre></div><p>However, trying to reset the system clock would seem to hang:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">clock_configure(clk_sys,
                     CLOCKS_CLK_SYS_CTRL_SRC_VALUE_CLKSRC_CLK_SYS_AUX,
                     CLOCKS_CLK_SYS_CTRL_AUXSRC_VALUE_CLKSRC_PLL_SYS,
-                    <span style=color:#ae81ff>125</span> <span style=color:#f92672>*</span> MHZ,
-                    <span style=color:#ae81ff>125</span> <span style=color:#f92672>*</span> MHZ);
-</code></pre></div><p>As the ring oscillator is still disabled, lets see if we can bring that back to a good state. It&rsquo;s being disabled in <a href=https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L95>this</a> part of the code. Which does the following:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>rosc_disable</span>(<span style=color:#66d9ef>void</span>) {
-    uint32_t tmp <span style=color:#f92672>=</span> rosc_hw<span style=color:#f92672>-&gt;</span>ctrl;
-    tmp <span style=color:#f92672>&amp;=</span> (<span style=color:#f92672>~</span>ROSC_CTRL_ENABLE_BITS);
-    tmp <span style=color:#f92672>|=</span> (ROSC_CTRL_ENABLE_VALUE_DISABLE <span style=color:#f92672>&lt;&lt;</span> ROSC_CTRL_ENABLE_LSB);
-    rosc_write(<span style=color:#f92672>&amp;</span>rosc_hw<span style=color:#f92672>-&gt;</span>ctrl, tmp);
-    <span style=color:#75715e>// Wait for stable to go away
-</span><span style=color:#75715e></span>    <span style=color:#66d9ef>while</span>(rosc_hw<span style=color:#f92672>-&gt;</span>status <span style=color:#f92672>&amp;</span> ROSC_STATUS_STABLE_BITS);
+                    <span style="color:#ae81ff">125</span> <span style="color:#f92672">*</span> MHZ,
+                    <span style="color:#ae81ff">125</span> <span style="color:#f92672">*</span> MHZ);
+</code></pre></div><p>As the ring oscillator is still disabled, lets see if we can bring that back to a good state. It&rsquo;s being disabled in <a href="https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L95">this</a> part of the code. Which does the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rosc_disable</span>(<span style="color:#66d9ef">void</span>) {
+    <span style="color:#66d9ef">uint32_t</span> tmp <span style="color:#f92672">=</span> rosc_hw<span style="color:#f92672">-&gt;</span>ctrl;
+    tmp <span style="color:#f92672">&amp;=</span> (<span style="color:#f92672">~</span>ROSC_CTRL_ENABLE_BITS);
+    tmp <span style="color:#f92672">|=</span> (ROSC_CTRL_ENABLE_VALUE_DISABLE <span style="color:#f92672">&lt;&lt;</span> ROSC_CTRL_ENABLE_LSB);
+    rosc_write(<span style="color:#f92672">&amp;</span>rosc_hw<span style="color:#f92672">-&gt;</span>ctrl, tmp);
+    <span style="color:#75715e">// Wait for stable to go away
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span>(rosc_hw<span style="color:#f92672">-&gt;</span>status <span style="color:#f92672">&amp;</span> ROSC_STATUS_STABLE_BITS);
 }
-</code></pre></div><p>As a side note, the SDK has an interesting <a href=https://github.com/raspberrypi/pico-sdk/blob/26653ea81e340cacee55025d110c3e014a252a87/src/rp2040/hardware_regs/include/hardware/regs/rosc.h#L23>note</a> around disabling the ring oscillator before switching the system clock to run from another source.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>The system clock must be switched to another source before
+</code></pre></div><p>As a side note, the SDK has an interesting <a href="https://github.com/raspberrypi/pico-sdk/blob/26653ea81e340cacee55025d110c3e014a252a87/src/rp2040/hardware_regs/include/hardware/regs/rosc.h#L23">note</a> around disabling the ring oscillator before switching the system clock to run from another source.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">The system clock must be switched to another source before
 setting this field to DISABLE otherwise the chip will lock up
-</code></pre></div><p>Lets try and re-enable the ROSC:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>rosc_write(<span style=color:#f92672>&amp;</span>rosc_hw<span style=color:#f92672>-&gt;</span>ctrl, ROSC_CTRL_ENABLE_BITS);
-</code></pre></div><p>At this point we can then run <code>clocks_init</code> and it no longer hangs, the clocks are then back to a similar state before sleeping, great!</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>pll_sys  = 125000kHz
+</code></pre></div><p>Lets try and re-enable the ROSC:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">rosc_write(<span style="color:#f92672">&amp;</span>rosc_hw<span style="color:#f92672">-&gt;</span>ctrl, ROSC_CTRL_ENABLE_BITS);
+</code></pre></div><p>At this point we can then run <code>clocks_init</code> and it no longer hangs, the clocks are then back to a similar state before sleeping, great!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">pll_sys  = 125000kHz
 pll_usb  = 48000kHz
 rosc     = 4675kHz
 clk_sys  = 125000kHz
@@ -150,82 +258,105 @@ clk_peri = 125000kHz
 clk_usb  = 48000kHz
 clk_adc  = 48000kHz
 clk_rtc  = 47kHz
-</code></pre></div><h3 id=were-still-hanging>We&rsquo;re still hanging</h3><p>Unfortunately though, we&rsquo;re still hanging if we try and call sleep_ms after waking. Let&rsquo;s go deeper into the code to see what happens when we actually <a href=https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_sleep/hello_sleep.c#L50>sleep</a>.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>sleep_goto_sleep_until(<span style=color:#f92672>&amp;</span>t_alarm, <span style=color:#f92672>&amp;</span>sleep_callback);
-</code></pre></div><p>In <a href=https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L110>this</a> function, all the clocks are being disabled apart from the Real Time Clock (we need this to wake us up):</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>    <span style=color:#75715e>// Turn off all clocks when in sleep mode except for RTC
-</span><span style=color:#75715e></span>    clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en0 <span style=color:#f92672>=</span> CLOCKS_SLEEP_EN0_CLK_RTC_RTC_BITS;
-    clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en1 <span style=color:#f92672>=</span> <span style=color:#ae81ff>0x0</span>;
-</code></pre></div><p>We&rsquo;re then enabling deep sleeping on the processor:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c>    uint save <span style=color:#f92672>=</span> scb_hw<span style=color:#f92672>-&gt;</span>scr;
-    <span style=color:#75715e>// Enable deep sleep at the proc
-</span><span style=color:#75715e></span>    scb_hw<span style=color:#f92672>-&gt;</span>scr <span style=color:#f92672>=</span> save <span style=color:#f92672>|</span> M0PLUS_SCR_SLEEPDEEP_BITS;
+</code></pre></div><h3 id="were-still-hanging">We&rsquo;re still hanging</h3>
+<p>Unfortunately though, we&rsquo;re still hanging if we try and call sleep_ms after waking. Let&rsquo;s go deeper into the code to see what happens when we actually <a href="https://github.com/raspberrypi/pico-playground/blob/master/sleep/hello_sleep/hello_sleep.c#L50">sleep</a>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">sleep_goto_sleep_until(<span style="color:#f92672">&amp;</span>t_alarm, <span style="color:#f92672">&amp;</span>sleep_callback);
+</code></pre></div><p>In <a href="https://github.com/raspberrypi/pico-extras/blob/f5c7be9a86e3131cd13d2cc3493b84b23676f8c4/src/rp2_common/pico_sleep/sleep.c#L110">this</a> function, all the clocks are being disabled apart from the Real Time Clock (we need this to wake us up):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    <span style="color:#75715e">// Turn off all clocks when in sleep mode except for RTC
+</span><span style="color:#75715e"></span>    clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en0 <span style="color:#f92672">=</span> CLOCKS_SLEEP_EN0_CLK_RTC_RTC_BITS;
+    clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x0</span>;
+</code></pre></div><p>We&rsquo;re then enabling deep sleeping on the processor:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    uint save <span style="color:#f92672">=</span> scb_hw<span style="color:#f92672">-&gt;</span>scr;
+    <span style="color:#75715e">// Enable deep sleep at the proc
+</span><span style="color:#75715e"></span>    scb_hw<span style="color:#f92672">-&gt;</span>scr <span style="color:#f92672">=</span> save <span style="color:#f92672">|</span> M0PLUS_SCR_SLEEPDEEP_BITS;
 </code></pre></div><p>So it&rsquo;s likely we&rsquo;re going to need to reverse these settings as well to bring everything back to the pre-sleep state.
-Lets create a function to bring everything back to the good state for us:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>void</span> <span style=color:#a6e22e>recover_from_sleep</span>(uint scb_orig, uint clock0_orig, uint clock1_orig){
+Lets create a function to bring everything back to the good state for us:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">recover_from_sleep</span>(uint scb_orig, uint clock0_orig, uint clock1_orig){
 
-    <span style=color:#75715e>//Re-enable ring Oscillator control
-</span><span style=color:#75715e></span>    rosc_write(<span style=color:#f92672>&amp;</span>rosc_hw<span style=color:#f92672>-&gt;</span>ctrl, ROSC_CTRL_ENABLE_BITS);
+    <span style="color:#75715e">//Re-enable ring Oscillator control
+</span><span style="color:#75715e"></span>    rosc_write(<span style="color:#f92672">&amp;</span>rosc_hw<span style="color:#f92672">-&gt;</span>ctrl, ROSC_CTRL_ENABLE_BITS);
 
-    <span style=color:#75715e>//reset procs back to default
-</span><span style=color:#75715e></span>    scb_hw<span style=color:#f92672>-&gt;</span>scr <span style=color:#f92672>=</span> scb_orig;
-    clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en0 <span style=color:#f92672>=</span> clock0_orig;
-    clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en1 <span style=color:#f92672>=</span> clock1_orig;
+    <span style="color:#75715e">//reset procs back to default
+</span><span style="color:#75715e"></span>    scb_hw<span style="color:#f92672">-&gt;</span>scr <span style="color:#f92672">=</span> scb_orig;
+    clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en0 <span style="color:#f92672">=</span> clock0_orig;
+    clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en1 <span style="color:#f92672">=</span> clock1_orig;
 
-    <span style=color:#75715e>//reset clocks
-</span><span style=color:#75715e></span>    clocks_init();
+    <span style="color:#75715e">//reset clocks
+</span><span style="color:#75715e"></span>    clocks_init();
     stdio_init_all();
 
-    <span style=color:#66d9ef>return</span>;
+    <span style="color:#66d9ef">return</span>;
 }
-</code></pre></div><p>Bringing it all together then we end up with the following:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>main</span>() {
+</code></pre></div><p>Bringing it all together then we end up with the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
 
-    <span style=color:#66d9ef>const</span> uint LED_PIN <span style=color:#f92672>=</span> <span style=color:#ae81ff>25</span>;
+    <span style="color:#66d9ef">const</span> uint LED_PIN <span style="color:#f92672">=</span> <span style="color:#ae81ff">25</span>;
     stdio_init_all();
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
-    <span style=color:#75715e>//save values for later
-</span><span style=color:#75715e></span>    uint scb_orig <span style=color:#f92672>=</span> scb_hw<span style=color:#f92672>-&gt;</span>scr;
-    uint clock0_orig <span style=color:#f92672>=</span> clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en0;
-    uint clock1_orig <span style=color:#f92672>=</span> clocks_hw<span style=color:#f92672>-&gt;</span>sleep_en1;
+    <span style="color:#75715e">//save values for later
+</span><span style="color:#75715e"></span>    uint scb_orig <span style="color:#f92672">=</span> scb_hw<span style="color:#f92672">-&gt;</span>scr;
+    uint clock0_orig <span style="color:#f92672">=</span> clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en0;
+    uint clock1_orig <span style="color:#f92672">=</span> clocks_hw<span style="color:#f92672">-&gt;</span>sleep_en1;
 
-    printf(<span style=color:#e6db74>&#34;Hello Sleep!</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Hello Sleep!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    printf(<span style=color:#e6db74>&#34;Switching to XOSC</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switching to XOSC</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    <span style=color:#75715e>// Wait for the fifo to be drained so we get reliable output
-</span><span style=color:#75715e></span>    uart_default_tx_wait_blocking();
+    <span style="color:#75715e">// Wait for the fifo to be drained so we get reliable output
+</span><span style="color:#75715e"></span>    uart_default_tx_wait_blocking();
 
-    <span style=color:#75715e>// UART will be reconfigured by sleep_run_from_xosc
-</span><span style=color:#75715e></span>    sleep_run_from_xosc();
+    <span style="color:#75715e">// UART will be reconfigured by sleep_run_from_xosc
+</span><span style="color:#75715e"></span>    sleep_run_from_xosc();
 
-    printf(<span style=color:#e6db74>&#34;Switched to XOSC</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switched to XOSC</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
 
-    awake <span style=color:#f92672>=</span> false;
+    awake <span style="color:#f92672">=</span> false;
 
-    <span style=color:#75715e>//At this point the pico will sleep
-</span><span style=color:#75715e></span>    rtc_sleep();
+    <span style="color:#75715e">//At this point the pico will sleep
+</span><span style="color:#75715e"></span>    rtc_sleep();
 
-    <span style=color:#75715e>//We won&#39;t hit this part of the code until the 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>//time set in rtc_sleep() is reached. 
-</span><span style=color:#75715e></span>    <span style=color:#75715e>// Make sure we don&#39;t wake
-</span><span style=color:#75715e></span>    <span style=color:#66d9ef>while</span> (<span style=color:#f92672>!</span>awake) {
-        printf(<span style=color:#e6db74>&#34;Should be sleeping</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    <span style="color:#75715e">//We won&#39;t hit this part of the code until the 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//time set in rtc_sleep() is reached. 
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Make sure we don&#39;t wake
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>awake) {
+        printf(<span style="color:#e6db74">&#34;Should be sleeping</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     }
 
-    <span style=color:#75715e>//reset processor and clocks back to defaults
-</span><span style=color:#75715e></span>    recover_from_sleep(scb_orig, clock0_orig, clock1_orig);    
+    <span style="color:#75715e">//reset processor and clocks back to defaults
+</span><span style="color:#75715e"></span>    recover_from_sleep(scb_orig, clock0_orig, clock1_orig);    
     
-    printf(<span style=color:#e6db74>&#34;switch on the onboard LED</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;switch on the onboard LED</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
-    gpio_put(LED_PIN, <span style=color:#ae81ff>1</span>);
+    gpio_put(LED_PIN, <span style="color:#ae81ff">1</span>);
 
-    <span style=color:#75715e>//We no longer hang here!
-</span><span style=color:#75715e></span>    sleep_ms(<span style=color:#ae81ff>2000</span>);
+    <span style="color:#75715e">//We no longer hang here!
+</span><span style="color:#75715e"></span>    sleep_ms(<span style="color:#ae81ff">2000</span>);
 
-    printf(<span style=color:#e6db74>&#34;Switch off LED</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span>);
+    printf(<span style="color:#e6db74">&#34;Switch off LED</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
     uart_default_tx_wait_blocking();
-    gpio_put(LED_PIN, <span style=color:#ae81ff>0</span>);
+    gpio_put(LED_PIN, <span style="color:#ae81ff">0</span>);
 
-    <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-</code></pre></div><p>Finally we no longer hang when calling <code>sleep_ms</code> after waking.</p><p>Full example with build instructions can be seen <a href=https://github.com/ghubcoder/PicoSleepDemo>here</a>.</p><p>Hopefully this has been somewhat interesting and perhaps will help someone else to wake their Pico after deep sleeping.</p></div></div></div><footer class="text-center pb-1"><small class=text-muted>&copy; ghubcoder<br>Powered by <a href=https://gohugo.io/ target=_blank>Hugo</a>
-and <a href=https://github.com/austingebauer/devise target=_blank>Devise</a></small></footer></body></html>
+</code></pre></div><p>Finally we no longer hang when calling <code>sleep_ms</code> after waking.</p>
+<p>Full example with build instructions can be seen <a href="https://github.com/ghubcoder/PicoSleepDemo">here</a>.</p>
+<p>Hopefully this has been somewhat interesting and perhaps will help someone else to wake their Pico after deep sleeping.</p>
+
+    </div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; ghubcoder
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>
