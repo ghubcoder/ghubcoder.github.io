@@ -7,7 +7,18 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; ghubcoder</copyright>
-    <lastBuildDate>Mon, 26 Jul 2021 17:45:51 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/tags/raspberry/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 27 Oct 2021 18:30:00 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/tags/raspberry/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deep sleeping the Raspberry Pico with Micropython</title>
+      <link>https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/</link>
+      <pubDate>Wed, 27 Oct 2021 18:30:00 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/</guid>
+      <description>Deep sleeping the Raspberry Pico with Micropython The first post of this series discussed how you can put your pico into a deep sleep state and wake it at some point later using the internal real time clock, using the c programming language. Here we will discuss a solution to allow the same technique to be used with Micropython.
+TLDR Skip to release and example here
+ Micropython Whilst the first approached used C, Micropython however is heavily promoted by many of the getting started guides you will find for the Pico such as this one found here.</description>
+    </item>
+    
     <item>
       <title>Waking the Pico with an external trigger</title>
       <link>https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/</link>

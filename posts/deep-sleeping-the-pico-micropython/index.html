@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Deep sleeping the Raspberry Pico with Micropython</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        ghubcoder
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../posts/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/ghubcoder/" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-4 ml-sm-5">
+        <h3 id="deep-sleeping-the-raspberry-pico-with-micropython">Deep sleeping the Raspberry Pico with Micropython</h3>
+<p>The <a href="https://ghubcoder.github.io/posts/awaking-the-pico/">first</a> post of this series discussed how you can put your pico into a deep sleep state and wake it at some point later using the internal real time clock, using the c programming language. Here we will discuss a solution to allow the same technique to be used with Micropython.</p>
+<h3 id="tldr">TLDR</h3>
+<p>Skip to release and example <a href="https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/#release">here</a></p>
+<p> 
+ </p>
+<h3 id="micropython">Micropython</h3>
+<p>Whilst the first approached used C, Micropython however is heavily promoted by many of the getting started guides you will find for the Pico such as this one found <a href="https://projects.raspberrypi.org/en/projects/getting-started-with-the-pico">here</a>. This makes sense as today Python is the first programming language many will encounter, it&rsquo;s widely used and has a huge library of modules available to leverage. It&rsquo;s very easy to get started with, especially when using Thonny, allowing you to run commands via the <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a>, or by uploading files onto the board to be ran on boot-up. Micropython itself can be used on numerous boards as a result of its support of a number of ARM based architectures (perhaps one slight downside as we will come to later).</p>
+<p>Python and hence Micropython does have a performance drawback as a result of it being an interpreted language when compared to C, however it&rsquo;s possible to extended Python (and Micropython) with natively compiled C modules for critical paths of your code which can be imported as regular Python modules. An example of how to do this with Micropython can be seen <a href="https://docs.micropython.org/en/latest/develop/natmod.html#minimal-example">here</a>.</p>
+<h3 id="dormant-sleep-mode">Dormant sleep mode</h3>
+<p>This leads us onto <a href="https://github.com/ghubcoder/PicoSleepDemo/issues/2#issue-1017429729">this</a> issue raised a few weeks ago around how to use deep sleep with Micropython. As mentioned previously, the Pico has two sleep modes, known as <code>dormant</code> and <code>sleep</code>, read more about these in the <a href="https://ghubcoder.github.io/posts/awaking-the-pico/">previous</a> post which includes links to the official docs.</p>
+<h3 id="micropython-deepsleep">Micropython deepsleep</h3>
+<p>Micropython does support a <a href="https://docs.micropython.org/en/latest/library/machine.html#machine.deepsleep">deepsleep</a> state. As mentioned above, Micropython supports a variety of board types:</p>
+<blockquote>
+<p>The precise behaviour and power-saving capabilities of lightsleep and deepsleep is highly dependent on the underlying hardware</p>
+</blockquote>
+<p>Which means that with a single command, <code>machine.deepsleep</code> they must be able to implement similar behavior across a wide number of boards.</p>
+<p>Currently when <code>machine.deepsleep</code> is utilized on the Pico, the board sleeps and will then reset. If you have uploaded your Python main script file as <code>main.py</code>, the board will restart after sleeping and once again begin executing your code, until it sleeps once more (if that code path is triggered).</p>
+<p>The power consumption was measured during this sleep state and unfortunately on the Pico it still pulls <code>25.6mA</code> (at least on the board used and with the ambient conditions for this particular test).</p>
+<h3 id="dormant-sleep-mode-on-the-pico">Dormant Sleep mode on the Pico</h3>
+<p>After a quick look around for a solution, it appears <code>tomjorquera</code> has done the hard work <a href="https://github.com/tomjorquera/pico-micropython-lowpower-workaround">already</a> and has been able to demonstrate how the dormant mode can be utilized from within Micropython. Unfortunately you need an external trigger as described <a href="https://ghubcoder.github.io/posts/waking-the-pico-external-trigger/">here</a> to bring your Pico back out of deep sleep. If you have an <code>DS3231</code> handy it&rsquo;s certainly a good option and is the lowest sleep state available drawing <code>0.8mA</code>.</p>
+<h3 id="sleep-mode-on-the-pico">Sleep mode on the Pico</h3>
+<p>The simplest method however is to make use of the internal real time clock as <a href="https://ghubcoder.github.io/posts/awaking-the-pico/">demonstrated</a>, as no external modules are required. We ask the Pico to sleep and then awake again after some time has past. This draws around <code>1.3mA</code>.</p>
+<p>As discussed in <a href="https://github.com/ghubcoder/PicoSleepDemo/issues/2#issuecomment-945177298">this</a> reply, Circuitpython, an alternative to Micropython does appear to support waking from the RTC. The following code was tested:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> alarm
+<span style="color:#f92672">import</span> board
+<span style="color:#f92672">import</span> time
+<span style="color:#f92672">import</span> digitalio
+
+print(<span style="color:#e6db74">&#34;Waking up&#34;</span>)
+
+led <span style="color:#f92672">=</span> digitalio<span style="color:#f92672">.</span>DigitalInOut(board<span style="color:#f92672">.</span>LED)
+led<span style="color:#f92672">.</span>direction <span style="color:#f92672">=</span> digitalio<span style="color:#f92672">.</span>Direction<span style="color:#f92672">.</span>OUTPUT
+
+<span style="color:#75715e"># Flash the led</span>
+led<span style="color:#f92672">.</span>value <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">2</span>)
+led<span style="color:#f92672">.</span>value <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+<span style="color:#75715e"># Set an alarm for 60 seconds from now.</span>
+time_alarm <span style="color:#f92672">=</span> alarm<span style="color:#f92672">.</span>time<span style="color:#f92672">.</span>TimeAlarm(monotonic_time<span style="color:#f92672">=</span>time<span style="color:#f92672">.</span>monotonic() <span style="color:#f92672">+</span> <span style="color:#ae81ff">60</span>)
+
+print(<span style="color:#e6db74">&#34;Sleeping&#34;</span>)
+<span style="color:#75715e"># Deep sleep until the alarm goes off. Then restart the program.</span>
+alarm<span style="color:#f92672">.</span>exit_and_deep_sleep_until_alarms(time_alarm)
+</code></pre></div><p>The current draw was measured during sleep mode and was found to be around <code>7.6mA</code>, which whilst better than Micropython&rsquo;s deep sleep is still much more than the the <code>1.3mA</code> of the sleep mode when used via C.</p>
+<h3 id="possible-solutions">Possible solutions</h3>
+<p>There are perhaps 3 ways we can get this to work via Micropython.</p>
+<ol>
+<li>As <code>tomjorquera</code> has demonstrated, we can try to work out what register calls must be made on the Pico to replicate the calls the <code>pico-extras</code> library is making from within C in order to get everything ready to sleep and wake from the RTC.</li>
+<li>We could attempt to write an importable external C module as described <a href="https://docs.micropython.org/en/latest/develop/natmod.html#minimal-example">here</a>.</li>
+<li>We can extend Micropython directly to support deep sleeping.</li>
+</ol>
+<p>Solution <code>1</code> would most likely be the most portable as nothing needs to be recompiled. This is not the solution chosen here, it&rsquo;s perhaps something that can be looked at in the future. Solution <code>2</code> may not be feasible, please see <a href="https://forums.raspberrypi.com/viewtopic.php?f=146&amp;t=309012&amp;p=1848238#p1848238">this</a> post on the Raspberry Pico forums.</p>
+<p>That leaves us with solution <code>3</code>. This could be broken down into two parts, we can try and submit a PR and try to ensure that when <code>machine.deepsleep</code> is called when running on the Pico, the correct calls are made to get everything ready to sleep and wake as we wish. Before we do that however, we can try and recompile Micropython and directly add a new module for ourselves that will be available to use when we run our custom version of Micropython on our own Raspberry Pico&rsquo;s.</p>
+<p>This is not the best solution, as it means we are having to fork Micropython and will have to ensure our fork is kept up to date if we want to continue to bring in new features and bug fixes that the mainline codebase brings us. It does though demonstrate the feasibility of deep sleeping with the Pico using Micropython. We can open source this code and provide a custom <code>firmware.uf2</code> file which people can download and drop onto their boards for them to try it out.</p>
+<p>The rest of this article will discuss this approach.</p>
+<h3 id="required-changes-to-micropython">Required changes to Micropython</h3>
+<p><a href="https://forums.raspberrypi.com/viewtopic.php?t=300352">This</a> forum post describes how we can add our own C extension to Micropython thanks to the most excellent <code>hippy</code> who provides so much insight on the Raspberry forums.</p>
+<p>The basic idea is to make a copy of the <code>ports/rp2/</code> directory that we can work with to add our custom module, add our code and modify a number of files to instruct the compiler to include it along with the rest of the current code.</p>
+<p>The example hippy gives is as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;py/runtime.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+STATIC mp_obj_t <span style="color:#a6e22e">hack_test</span>(<span style="color:#66d9ef">void</span>) {
+    <span style="color:#66d9ef">return</span> MP_OBJ_NEW_SMALL_INT(<span style="color:#ae81ff">1234</span>);
+}
+MP_DEFINE_CONST_FUN_OBJ_0(hack_test_obj, hack_test);
+
+STATIC <span style="color:#66d9ef">const</span> mp_rom_map_elem_t hack_module_globals_table[] <span style="color:#f92672">=</span> {
+    { MP_ROM_QSTR(MP_QSTR___name__),            MP_ROM_QSTR(MP_QSTR_hack) },
+    { MP_ROM_QSTR(MP_QSTR_test),                MP_ROM_PTR(<span style="color:#f92672">&amp;</span>hack_test_obj) },
+};
+STATIC <span style="color:#a6e22e">MP_DEFINE_CONST_DICT</span>(hack_module_globals, hack_module_globals_table);
+
+<span style="color:#66d9ef">const</span> mp_obj_module_t mp_module_hack <span style="color:#f92672">=</span> {
+    .base <span style="color:#f92672">=</span> { <span style="color:#f92672">&amp;</span>mp_type_module },
+    .globals <span style="color:#f92672">=</span> (mp_obj_dict_t <span style="color:#f92672">*</span>)<span style="color:#f92672">&amp;</span>hack_module_globals,
+};
+</code></pre></div><p>This can then be used as follows within Micropython:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> hack
+<span style="color:#f92672">&gt;&gt;&gt;</span> hack<span style="color:#f92672">.</span>test()
+<span style="color:#ae81ff">1234</span>
+</code></pre></div><p>Which prints <code>1234</code> when run from the Micropython repl. In the above block of c code, the first part is what we really care about, everything else below is required to set everything up within Micropython for our new custom function to be called:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">STATIC mp_obj_t <span style="color:#a6e22e">hack_test</span>(<span style="color:#66d9ef">void</span>) {
+    <span style="color:#66d9ef">return</span> MP_OBJ_NEW_SMALL_INT(<span style="color:#ae81ff">1234</span>);
+}
+</code></pre></div><p>By following the same steps we can create a module which will run the same c code as used in the first Pico sleep demo post. The module will be called <code>picosleep</code>.</p>
+<h3 id="including-pico-extras">Including pico-extras</h3>
+<p>The Micropython rp2 port currently makes use of the <code>pico-sdk</code> git repo as a sub module, allowing it to make use of libraries provided by the Pico developers. That can be found <a href="https://github.com/raspberrypi/pico-sdk">here</a>. A git sub module allows you to include other git repositories within your project, without having to include a complete copy of the code.</p>
+<p>The Pico deep sleep code we are going to add makes use of functions provided by the <code>pico-extras</code> git <a href="https://github.com/raspberrypi/pico-extras">repo</a> also provided by the Pico developers. We can add it using the following command under the <code>lib/</code> directory:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">git submodule https://github.com/raspberrypi/pico-extras
+</code></pre></div><p>A number of changes to <code>CMakeLists.txt</code> were also made to ensure <code>pico-extras</code> is correctly added for everything to compile correctly, such as <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/commit/d8c8c67cd36959e325c16a3736d471e61952db6d#diff-75b63ebed7e3344f1eec54a840b80b86e158fc603e1b452b6c57607aeadf8264R17-R21">here</a> for example.</p>
+<p>The full example code for how this looks once we add in the sleep code can be seen <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/blob/master/ports/rp2sleep/modpicosleep.c">here</a>, looking very similar to the first <a href="https://github.com/ghubcoder/PicoSleepDemo/blob/master/main.c">example</a>.</p>
+<h3 id="building">Building</h3>
+<p>With the changes made to cmake, the custom module can be built as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git clone https://github.com/ghubcoder/micropython-pico-deepsleep.git
+cd micropython/
+make -C mpy-cross/
+git submodule update --init -- lib/pico-sdk
+git submodule update --init -- lib/pico-extras
+git submodule update --init -- lib/tinyusb
+cd ports/rp2sleep
+make -j4
+</code></pre></div><p>This should result in a <code>build-PICO</code> folder being generated, inside which will contain a <code>firmware.uf2</code> file. By powering on the Pico and holding down the BOOTSEL button, this file can be dropped into place. Once the Pico restarts it will be running the new custom firmware, ready for the <code>picosleep</code> module to be imported and used.</p>
+<p>Connecting via Thonny should show a message similar to:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">MicroPython v1.17-94-gfab32dd88-dirty on 2021-10-27; Raspberry Pi Pico <span style="color:#f92672">(</span>sleep<span style="color:#f92672">)</span> with RP2040
+</code></pre></div><p>Where <code>(sleep)</code> indicates the custom firmware is being executed as defined <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/blob/d8c8c67cd36959e325c16a3736d471e61952db6d/ports/rp2sleep/boards/PICO/mpconfigboard.h#L2">here</a>.</p>
+<h3 id="using-picosleep-from-micropython">Using picosleep from micropython</h3>
+<p>Unfortunately attempting to use this from within the repl will result in the connection being lost and no further output will be seen from your script in the repl terminal. The best way is to write a script and upload this onto the Pico using Thonny. An example is as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> picosleep
+<span style="color:#f92672">import</span> time
+<span style="color:#f92672">from</span> machine <span style="color:#f92672">import</span> Pin
+
+led <span style="color:#f92672">=</span> Pin(<span style="color:#ae81ff">25</span>, Pin<span style="color:#f92672">.</span>OUT)
+sleeptime <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#66d9ef">while</span> sleeptime <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">10</span>:
+    led<span style="color:#f92672">.</span>toggle()
+    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">5</span>)
+    led<span style="color:#f92672">.</span>toggle()
+    picosleep<span style="color:#f92672">.</span>seconds(sleeptime)
+    sleeptime <span style="color:#f92672">=</span> sleeptime <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</code></pre></div><p>A quick example of how we can sleep within a loop. This will start your pico, enable the led for 5 seconds and then deepsleep and repeat until <code>sleeptime</code> gets to 10 seconds. Proving we can deepsleep from python and continue code execution.</p>
+<p>Unfortunately when this was first ran, the Pico hung. It appears that when attempting to sleep for 1 second there is a timing issue, perhaps from the time the real time clock started to the time the sleep is initiated 1 second has already past (doubtful though!). To guard against this the following was added:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">//Hangs if we attempt to sleep for 1 second....
+</span><span style="color:#75715e">//Guard against this and perform a normal sleep
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span>(seconds_to_sleep <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>){
+    sleep_ms(<span style="color:#ae81ff">1000</span>);
+    <span style="color:#66d9ef">return</span>;
+}
+</code></pre></div><p>So in the example above the first loop iteration doesn&rsquo;t actually deepsleep. Sleeping for 2 seconds or more works fine however and with the changes made to the code to make use of the c <code>&lt;time.h&gt;</code> library we can sleep for much longer periods. This is achieved by creating a struct representing the current time when the RTC is initialized, incrementing the seconds and then calling <code>mktime</code>, and using the resulting struct to create a Pico <code>datetime_t</code> struct which we can pass to the Pico to sleep :</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">t.tm_sec <span style="color:#f92672">+=</span> seconds_to_sleep;
+mktime(<span style="color:#f92672">&amp;</span>t);
+
+datetime_t t_alarm <span style="color:#f92672">=</span> {
+        .year  <span style="color:#f92672">=</span> t.tm_year<span style="color:#f92672">+</span><span style="color:#ae81ff">1900</span>,
+        .month <span style="color:#f92672">=</span> t.tm_mon<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,
+        .day   <span style="color:#f92672">=</span> t.tm_mday,
+        .dotw  <span style="color:#f92672">=</span> t.tm_wday, <span style="color:#75715e">// 0 is Sunday, so 5 is Friday
+</span><span style="color:#75715e"></span>        .hour  <span style="color:#f92672">=</span> t.tm_hour,
+        .min   <span style="color:#f92672">=</span> t.tm_min,
+        .sec   <span style="color:#f92672">=</span> t.tm_sec
+};
+
+sleep_goto_sleep_until(<span style="color:#f92672">&amp;</span>t_alarm, <span style="color:#f92672">&amp;</span>sleep_callback);
+</code></pre></div><h3 id="resulting-power-consumption">Resulting Power consumption</h3>
+<p>By hooking up a multimeter to the Pico we can measure the current draw using different sleep methods:
+ 
+ </p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>current (mA)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Micropython time.sleep</td>
+<td>25.4mA</td>
+</tr>
+<tr>
+<td>Micropython machine.deepsleep</td>
+<td>25.6mA</td>
+</tr>
+<tr>
+<td>Circuitpython deepsleep</td>
+<td>7.6mA</td>
+</tr>
+<tr>
+<td>Micropython (custom firmware) picosleep.seconds     </td>
+<td>1.4mA</td>
+</tr>
+</tbody>
+</table>
+<p> 
+ </p>
+<p>Using the solution here we can get very close to the 1.3mA as advertised by the official docs for sleeping and waking using the RTC.</p>
+<h3 id="release">Code and release download location</h3>
+<p>Code can be found <a href="https://github.com/ghubcoder/micropython-pico-deepsleep">here</a>.</p>
+<p>Pre-compiled uf2 file can be found <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/releases/tag/v1.0-pico-deepsleep">here</a></p>
+<p>Usage:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> picosleep
+picosleep<span style="color:#f92672">.</span>seconds(<span style="color:#ae81ff">60</span>)
+</code></pre></div>
+    </div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; ghubcoder
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

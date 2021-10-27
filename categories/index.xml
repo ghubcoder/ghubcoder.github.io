@@ -7,22 +7,31 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; ghubcoder</copyright>
-    <lastBuildDate>Mon, 26 Jul 2021 17:45:51 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 27 Oct 2021 18:30:00 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>DS3231</title>
-      <link>https://ghubcoder.github.io/categories/ds3231/</link>
-      <pubDate>Mon, 26 Jul 2021 17:45:51 +0000</pubDate>
+      <title>Micropython</title>
+      <link>https://ghubcoder.github.io/categories/micropython/</link>
+      <pubDate>Wed, 27 Oct 2021 18:30:00 +0000</pubDate>
       
-      <guid>https://ghubcoder.github.io/categories/ds3231/</guid>
+      <guid>https://ghubcoder.github.io/categories/micropython/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Raspberry Pico</title>
       <link>https://ghubcoder.github.io/categories/raspberry-pico/</link>
-      <pubDate>Mon, 26 Jul 2021 17:45:51 +0000</pubDate>
+      <pubDate>Wed, 27 Oct 2021 18:30:00 +0000</pubDate>
       
       <guid>https://ghubcoder.github.io/categories/raspberry-pico/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>DS3231</title>
+      <link>https://ghubcoder.github.io/categories/ds3231/</link>
+      <pubDate>Mon, 26 Jul 2021 17:45:51 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/categories/ds3231/</guid>
       <description></description>
     </item>
     
