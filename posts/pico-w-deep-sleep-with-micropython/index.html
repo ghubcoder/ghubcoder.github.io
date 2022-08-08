@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Pico-W Deep Sleep with Micropython</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        ghubcoder
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../posts/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/ghubcoder/" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-4 ml-sm-5">
+        <h3 id="pico-w-deep-sleep-with-micropython">Pico-W Deep Sleep with Micropython</h3>
+<p>The <a href="https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/">last</a> post of this series discussed how a simple mod for Micropython could be developed to support deep sleeping. This post will briefly discuss how this can also now be used with the Pico-W with a short code example.</p>
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip{background:#e6f9e6}.icon-notice{display:inline-flex;align-self:center;margin-right:8px}.icon-notice img,.icon-notice svg{height:1em;width:1em;fill:currentColor}.icon-notice img,.icon-notice.baseline svg{top:0.125em;position:relative}</style>
+<div><svg width="0" height="0" display="none" xmlns="http://www.w3.org/2000/svg"><symbol id="tip-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet"><path d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"/></symbol><symbol id="note-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet"><path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/></symbol><symbol id="warning-notice" viewBox="0 0 576 512" preserveAspectRatio="xMidYMid meet"><path d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/></symbol><symbol id="info-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet"><path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"/></symbol></svg></div><div class="notice note" >
+<p class="first notice-title"><span class="icon-notice baseline"><svg><use href="#note-notice"></use></svg></span>Note</p><p>Deep sleeping and waking from the onboard clock has been merged into Micropython directly with <a href="https://github.com/micropython/micropython/pull/8832#issuecomment-1201106991">this</a> commit. This unfortunately did not work for me when using a Pico-W however. I ran into the same issue as described in <a href="https://github.com/micropython/micropython/pull/8832#issuecomment-1201106991">this</a> comment. It&rsquo;s worth giving it a try though using the latest Micropython builds or compiling the latest version of the code yourself before using this unofficial modification.</p></div>
+
+<h3 id="tldr">TLDR</h3>
+<p>Skip to release and example <a href="https://ghubcoder.github.io/posts/pico-w-deep-sleep-with-micropython/#release">here</a></p>
+<p> </p>
+<h3 id="raspberry-pi-pico-w">Raspberry Pi Pico-W</h3>
+<p>The Raspberry Pi Pico-W was released on the 30th of June 2022. This new version of the Pico is pretty much identical to the first version, but now includes a 2.4GHz 802.11n wireless LAN chip, supporting both WiFi and bluetooth capabilities.</p>
+<p>The commit required to modify the master branch of Micropython to add in the sleep modification can be seen <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/commit/2b73bb0385644b8d3226da80c7f8b03566ed1cec">here</a>. It serves as a good example of how Micropython can be customised, allowing you to add your own modules and commands. This might be needed to improve performance of certain sections of critical code or to expose parts of the hardware not yet provided for by Micropython.</p>
+<h3 id="example-code">Example code</h3>
+<p>Once this modification is compiled and loaded onto the Pico-W it&rsquo;s then possible to use the following example code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> network
+<span style="color:#f92672">import</span> time
+<span style="color:#f92672">import</span> machine
+<span style="color:#f92672">import</span> picosleep
+
+ssid <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ssid_to_connect_to&#39;</span>
+password <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;password&#39;</span>
+
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wait_for_wifi</span>():
+    <span style="color:#75715e"># Wait for connect or fail</span>
+    max_wait <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+    <span style="color:#66d9ef">while</span> max_wait <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+        <span style="color:#66d9ef">if</span> wlan<span style="color:#f92672">.</span>status() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">or</span> wlan<span style="color:#f92672">.</span>status() <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">3</span>:
+            <span style="color:#66d9ef">break</span>
+        max_wait <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>
+        time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">1</span>)
+
+    <span style="color:#75715e"># Handle connection error</span>
+    <span style="color:#66d9ef">if</span> wlan<span style="color:#f92672">.</span>status() <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span>:
+        <span style="color:#66d9ef">return</span> wlan<span style="color:#f92672">.</span>status()
+    <span style="color:#66d9ef">else</span>:
+        status <span style="color:#f92672">=</span> wlan<span style="color:#f92672">.</span>ifconfig()
+        <span style="color:#75715e"># Uncomment below to print assigned network ip</span>
+        <span style="color:#75715e"># Printing will cause the pico to hang though</span>
+        <span style="color:#75715e"># when using picosleep</span>
+        <span style="color:#75715e">#print(&#39;ip = &#39; + status[0])</span>
+        <span style="color:#66d9ef">return</span> wlan<span style="color:#f92672">.</span>status()
+
+
+
+<span style="color:#75715e"># Inital setup and connection</span>
+wlan <span style="color:#f92672">=</span> network<span style="color:#f92672">.</span>WLAN(network<span style="color:#f92672">.</span>STA_IF)
+wlan<span style="color:#f92672">.</span>active(<span style="color:#66d9ef">True</span>)
+wlan<span style="color:#f92672">.</span>connect(ssid, password)
+
+<span style="color:#66d9ef">while</span> (wait_for_wifi() <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span>):
+    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">1</span>)
+    wlan<span style="color:#f92672">.</span>connect(ssid, password)
+
+led <span style="color:#f92672">=</span> machine<span style="color:#f92672">.</span>Pin(<span style="color:#e6db74">&#34;LED&#34;</span>, machine<span style="color:#f92672">.</span>Pin<span style="color:#f92672">.</span>OUT)
+led<span style="color:#f92672">.</span>on()
+
+<span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+    wlan<span style="color:#f92672">.</span>disconnect()
+    wlan<span style="color:#f92672">.</span>active(<span style="color:#66d9ef">False</span>)
+    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">5</span>)
+    led<span style="color:#f92672">.</span>off()
+
+    <span style="color:#75715e"># deepsleep</span>
+    picosleep<span style="color:#f92672">.</span>seconds(<span style="color:#ae81ff">5</span>)
+
+    led<span style="color:#f92672">.</span>on()
+    wlan<span style="color:#f92672">.</span>active(<span style="color:#66d9ef">True</span>)
+    wlan<span style="color:#f92672">.</span>connect(ssid, password)
+    <span style="color:#66d9ef">while</span> (wait_for_wifi() <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span>):
+        time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">1</span>)
+        wlan<span style="color:#f92672">.</span>connect(ssid, password)
+    <span style="color:#75715e"># Perform work here</span>
+    <span style="color:#75715e"># Before sleeping again</span>
+    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">5</span>)
+</code></pre></div><p>This code was adapted from <a href="https://www.cnx-software.com/2022/07/03/getting-started-with-wifi-on-raspberry-pi-pico-w-board/">here</a></p>
+<p>This code allows a Pico-W to connecto to a WiFi network and periodically wake up from deep sleep to perform some work. If you uncomment this line above:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e">#print(&#39;ip = &#39; + status[0])</span>
+</code></pre></div><p>You should see the ip address that your Pico has been assigned. Printing anything to console however appears to break deep sleep, so make sure nothing is printed out when running this standalone on the Pico by saving it as <code>main.py</code> so it runs at startup.</p>
+<p>If you grab the ip address and ping it, you should see the Pico respond and then peridically stop responding when in deep sleep. Remove the lines switching the led on to save even more power when not sleeping.</p>
+<p>Rather than using:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">picosleep<span style="color:#f92672">.</span>seconds(<span style="color:#ae81ff">5</span>)
+</code></pre></div><p>The following can be used without this deep sleep mod using the default relese of Micropython:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">machine<span style="color:#f92672">.</span>lightsleep(<span style="color:#ae81ff">5</span>)
+</code></pre></div><p>Though as mentioned in the note above some have ran into <a href="https://github.com/micropython/micropython/pull/8832#issuecomment-1201106991">issues</a> with the current available release.</p>
+<h3 id="release">Code and release download location</h3>
+<p>Code can be found <a href="https://github.com/ghubcoder/micropython-pico-deepsleep">here</a>.</p>
+<p>Pre-compiled uf2 file can be found <a href="https://github.com/ghubcoder/micropython-pico-deepsleep/releases/tag/v1.2-pico-deepsleep">here</a></p>
+<p>Usage:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> picosleep
+picosleep<span style="color:#f92672">.</span>seconds(<span style="color:#ae81ff">60</span>)
+</code></pre></div>
+    </div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; ghubcoder
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>

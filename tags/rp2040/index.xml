@@ -7,7 +7,18 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; ghubcoder</copyright>
-    <lastBuildDate>Wed, 27 Oct 2021 18:30:00 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/tags/rp2040/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Aug 2022 17:30:00 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/tags/rp2040/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Pico-W Deep Sleep with Micropython</title>
+      <link>https://ghubcoder.github.io/posts/pico-w-deep-sleep-with-micropython/</link>
+      <pubDate>Sun, 07 Aug 2022 17:30:00 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/pico-w-deep-sleep-with-micropython/</guid>
+      <description>Pico-W Deep Sleep with Micropython The last post of this series discussed how a simple mod for Micropython could be developed to support deep sleeping. This post will briefly discuss how this can also now be used with the Pico-W with a short code example.
+.notice{padding:18px;line-height:24px;margin-bottom:24px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip{background:#e6f9e6}.icon-notice{display:inline-flex;align-self:center;margin-right:8px}.icon-notice img,.icon-notice svg{height:1em;width:1em;fill:currentColor}.icon-notice img,.icon-notice.baseline svg{top:0.125em;position:relative} Note
+Deep sleeping and waking from the onboard clock has been merged into Micropython directly with this commit.</description>
+    </item>
+    
     <item>
       <title>Deep sleeping the Raspberry Pico with Micropython</title>
       <link>https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/</link>
