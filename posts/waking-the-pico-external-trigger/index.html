@@ -72,6 +72,7 @@
 </header>
 <div class="container">
     <div class="pl-sm-4 ml-sm-5">
+        Jul 26 2021
         <h3 id="waking-the-pico-with-an-external-trigger">Waking the Pico with an external trigger</h3>
 <p>In the <a href="https://ghubcoder.github.io/posts/awaking-the-pico/">last</a> post we discussed how you can put your pico to sleep and wake it using the in built clock, bringing everything back into a usable state after waking.</p>
 <p>As we noted last time, the Pico has two sleep modes, known as <code>dormant</code> and <code>sleep</code>. According to the official <a href="https://datasheets.raspberrypi.org/pico/pico-datasheet.pdf">datasheet</a>, the <code>sleep</code> mode draws 1.3mA on average at 25c where as <code>dormant</code> mode draws around 0.8mA at the same temperature, a saving of 38%. Therefore, if we are concerned about conserving as much power as possible when sleeping, for example if we are running off battery power, <code>dormant</code> mode provides a much better option.</p>
