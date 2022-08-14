@@ -107,16 +107,17 @@ make
 </code></pre></div><p>That should compile everything and produce a <code>blink.uf2</code> file to load onto your Pico.</p>
 <h3 id="example-code">Example code</h3>
 <p>This example is very straightforward. We have 3 tasks which all flash LED&rsquo;s connected to the Pico. The 3rd task is pinned to the second core. As tasks 1 and 2 are not pinned, FreeRTOS may schedule them to be ran on either core0 or core1. You can see how this looks from the output:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">LED_Task 2: core0
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">LED_Task 2: core0 &lt;--- first
 LED_Task 3: core1
 LED_Task 1: core0
 LED_Task 1: core0
-LED_Task 2: core1
+LED_Task 2: core1 &lt;--- second
 LED_Task 1: core0
 LED_Task 3: core1
 </code></pre></div><p>etc</p>
-<p>Where task 3 is always running on core1, but task 3 will always be scheduled to run on core1. Tasks 1 and 2 could be pinned to core0 to ensure task 3 is free to consume as much processor time as it needs on core1.</p>
-<p>Task priority can be set by modifying the fifth argument in the following calls:</p>
+<p>The first time Task 2 ran it was executed on core0, but the subsequent run was executed on core1. Whereas Task 3 will always report it is running on core1.</p>
+<p>Tasks 1 and 2 could be pinned to core0 to ensure task 3 is free to consume as much processor time as it needs on its dedicated core.</p>
+<p>Another option available to us is task priority which can be set by modifying the fifth argument in the following <code>xTaskCreate</code> calls:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">    <span style="color:#66d9ef">struct</span> led_task_arg arg1 <span style="color:#f92672">=</span> {<span style="color:#ae81ff">25</span>, <span style="color:#ae81ff">100</span>};
     xTaskCreate(led_task, <span style="color:#e6db74">&#34;LED_Task 1&#34;</span>, <span style="color:#ae81ff">256</span>, <span style="color:#f92672">&amp;</span>arg1, <span style="color:#ae81ff">1</span>, NULL);
 
