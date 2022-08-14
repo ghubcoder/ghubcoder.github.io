@@ -3,10 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://ghubcoder.github.io/categories/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/tags/freertos/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/categories/freertos/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ghubcoder.github.io/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/tags/pico/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/posts/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/tags/raspberry/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/categories/raspberry-pico/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/tags/rp2040/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/tags/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ghubcoder.github.io/posts/using-multiple-cores-pico-freertos/</loc>
+    <lastmod>2022-08-14T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ghubcoder.github.io/tags/micropython/</loc>
     <lastmod>2022-08-07T17:30:00+00:00</lastmod>
@@ -20,28 +47,10 @@
     <loc>https://ghubcoder.github.io/posts/pico-w-deep-sleep-with-micropython/</loc>
     <lastmod>2022-08-07T17:30:00+00:00</lastmod>
   </url><url>
-    <loc>https://ghubcoder.github.io/posts/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ghubcoder.github.io/tags/raspberry/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
-  </url><url>
     <loc>https://ghubcoder.github.io/categories/raspberry-pico-w/</loc>
     <lastmod>2022-08-07T17:30:00+00:00</lastmod>
   </url><url>
-    <loc>https://ghubcoder.github.io/tags/rp2040/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ghubcoder.github.io/tags/</loc>
-    <lastmod>2022-08-07T17:30:00+00:00</lastmod>
-  </url><url>
     <loc>https://ghubcoder.github.io/posts/deep-sleeping-the-pico-micropython/</loc>
-    <lastmod>2021-10-27T18:30:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ghubcoder.github.io/tags/pico/</loc>
-    <lastmod>2021-10-27T18:30:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ghubcoder.github.io/categories/raspberry-pico/</loc>
     <lastmod>2021-10-27T18:30:00+00:00</lastmod>
   </url><url>
     <loc>https://ghubcoder.github.io/tags/ds3231/</loc>

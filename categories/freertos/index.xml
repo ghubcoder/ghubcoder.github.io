@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>FreeRTOS on ghubcoder</title>
+    <link>https://ghubcoder.github.io/categories/freertos/</link>
+    <description>Recent content in FreeRTOS on ghubcoder</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; ghubcoder</copyright>
+    <lastBuildDate>Sun, 14 Aug 2022 12:00:00 +0000</lastBuildDate><atom:link href="https://ghubcoder.github.io/categories/freertos/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Using multiple cores with the Pico and FreeRTOS</title>
+      <link>https://ghubcoder.github.io/posts/using-multiple-cores-pico-freertos/</link>
+      <pubDate>Sun, 14 Aug 2022 12:00:00 +0000</pubDate>
+      
+      <guid>https://ghubcoder.github.io/posts/using-multiple-cores-pico-freertos/</guid>
+      <description>Using multiple cores with FreeRTOS and the Pico FreeRTOS is a real time operating system kernel which is designed for embedded devices, such as the Raspberry Pico. This article will give a brief overview of how this can be used on the Pico with an example repository.
+TLDR Git repo can be found here
+ Scheduling on multiple cores Lets say you&amp;rsquo;re looking to use your Pico to monitor data being received on one GPIO pin, whilst a the same time trying to provide output on that data, say via an OLED display.</description>
+    </item>
+    
+  </channel>
+</rss>
