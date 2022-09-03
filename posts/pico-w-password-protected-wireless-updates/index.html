@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head>
+    <title>Pico-w password protected wireless updates</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        src="../../images/avatar.png"
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        ghubcoder
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../posts/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/ghubcoder/" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-4 ml-sm-5">
+        Sep 3 2022
+        <h3 id="pico-w-password-protected-wireless-updates">Pico-w password protected wireless updates</h3>
+<p>If you have been programming a pico you will be familiar with the usual process of building your projects, resetting your pico whilst holding down the boot select button and uploading your uf2 file. There are other ways of course, you can use a Raspberry pi hooked up via SWD allowing you to remotely connect to the Pi and uploading your code via gdb.</p>
+<p>Here though is an example of how you can remotely upgrade a Pico W with nothing else required.</p>
+<p>The inclusion of a webserver allows the reboot into the bootloader to be initiated remotely and a means of setting a username and password.</p>
+<h3 id="tldr">TLDR</h3>
+<p>Git repo can be found <a href="https://github.com/ghubcoder/pico-w-wireless-updates">here</a></p>
+<p> </p>
+<h3 id="credits">Credits</h3>
+<p>The code described here makes use of the excellent <code>picowota</code> bootloader by <code>usedbytes</code> which can be seen <a href="https://github.com/usedbytes/picowota">here</a>.</p>
+<p>As well as the example <a href="https://github.com/krzmaz/pico-w-webserver-example">here</a> by <code>krzmaz</code> demonstrating how to run a web browser from your Pico-w using lwip.</p>
+<h3 id="building">Building</h3>
+<p>Build instructions can be found in the <a href="https://github.com/ghubcoder/pico-w-wireless-updates">repo</a> readme, main thing to note is that you will need to add a <code>credentials.cmake</code> file, this is used to configure wifi and to set a username and password required to put the Pico into bootloader mode.</p>
+<h3 id="running">Running</h3>
+<p>Once you have everything built, you will need to perform the initial upload in the normal way, easiest method is to hold down the bootsel button and upload the <code>picowota_blink.uf2</code> file onto your Pico W.</p>
+<p>This will reboot the Pico and after a short period it will start to flash indicating it has connected to your wifi network. If you are connected via usb and minicom you will see the assigned ip address printed out in the logs.</p>
+<h3 id="flashing-your-pico-w-remotely">Flashing your Pico-w remotely</h3>
+<p>You will need the flash utility provided by <code>usedbytes</code> <a href="https://github.com/usedbytes/serial-flash">here</a></p>
+<p>There are two methods to place your Pico-w into bootloader mode. You can either navigate to the ip address if your pico in your browser:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">http://ip_of_pico/reboot.html
+</code></pre></div><p>Here you need to enter the username and password you set for <code>REBOOT_USER</code> and <code>REBOOT_PASS</code>. The Pico will then reboot into the bootloader.</p>
+<p>Or you can run the following command via curl:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">curl -d <span style="color:#e6db74">&#34;user=USERNAME&amp;pass=PASSWORD&#34;</span> -X POST http://ip_of_pico/reboot.cgi
+</code></pre></div><p>Where USERNAME and PASSWORD are the values you set for <code>REBOOT_USER</code> and <code>REBOOT_PASS</code>.</p>
+<p>Finally make sure you are in the <code>build</code> directory and then run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">~/go/bin/serial-flash tcp:192.168.25.12:4242 blink.elf
+</code></pre></div><p>On my machine <code>~/go/bin/serial-flash</code> is where <code>serial-flash</code> is located after installation, this may differ on your machine.</p>
+<p>The output will look something like:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">~/go/bin/serial-flash tcp:192.168.25.12:4242 blink.elf
+Opened connection to 192.168.25.12:4242
+Synchronising:
+ <span style="color:#ae81ff">1</span> / <span style="color:#ae81ff">5</span> <span style="color:#f92672">[==========</span>&gt;--------------------------------------------<span style="color:#f92672">]</span>  20.00% 13/s 0s
+Querying device info:
+ <span style="color:#ae81ff">1</span> / <span style="color:#ae81ff">1</span> <span style="color:#f92672">[======================================================]</span> 100.00% 171/s 0s
+Erasing:
+ <span style="color:#ae81ff">352256</span> / <span style="color:#ae81ff">352256</span> <span style="color:#f92672">[==========================================]</span> 100.00% 92998/s 3s
+Writing:
+ <span style="color:#ae81ff">350464</span> / <span style="color:#ae81ff">350464</span> <span style="color:#f92672">[=========================================]</span> 100.00% 105397/s 3s
+Finalising:
+ <span style="color:#ae81ff">1</span> / <span style="color:#ae81ff">1</span> <span style="color:#f92672">[=======================================================]</span> 100.00% 12/s 0s
+</code></pre></div><p>The Pico-w will then reboot once more and be running your latest code. That&rsquo;s pretty much it. Using just two commands you can remotely flash your Pico-w.</p>
+<p>As the connection to your Pico-w is using http and not https, there is a risk that the username and password could be sniffed, the risk is minimal though on your local network, but should be noted. Adding in TLS is definitely something to think about though for the future.</p>
+<h3 id="summary">Summary</h3>
+<p>This simple example shows how we can use FreeRTOS to run multiple tasks on a Pico-W and run an embedded http server which provides a means for remote updates.</p>
+<h3 id="code-location">Code location</h3>
+<p>Code can be found <a href="https://github.com/ghubcoder/pico-w-wireless-updates">here</a>.</p>
+
+    </div>
+
+            </div>
+        </div><footer class="text-center pb-1">
+    <small class="text-muted">
+        
+            &copy; ghubcoder
+        
+        <br>
+        Powered by <a href="https://gohugo.io/" target="_blank">Hugo</a>
+        and <a href="https://github.com/austingebauer/devise" target="_blank">Devise</a>
+    </small>
+</footer>
+</body>
+</html>
